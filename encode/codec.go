@@ -1,0 +1,37 @@
+package encode
+
+import "io"
+
+
+type Header struct{
+	serviceMethod string   //服务方法名
+	Seq uint64			  //请求的序号，用来区分不同的请求
+	error string		  //错误的信息
+}
+//用来进行编解码
+type Codec interface {
+	io.Closer
+	ReadHeader(*Header) error
+	ReadBody(interface{}) error
+	Write(*Header, interface{}) error
+}
+
+type NewCodecFunc func(io.ReadWriteCloser) Codec
+
+type Type string
+
+const (
+	GobType  Type = "application/gob"
+	JsonType Type = "application/json" // not implemented
+)
+
+var NewCodecFuncMap map[Type]NewCodecFunc
+
+func init() {
+	NewCodecFuncMap = make(map[Type]NewCodecFunc)
+	NewCodecFuncMap[GobType] = NewGobCodec
+}
+
+
+
+
