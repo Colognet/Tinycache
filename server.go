@@ -1,5 +1,16 @@
 package geerpc
 
+import (
+	"encoding/json"
+	"fmt"
+	"geerpc/encode"
+	"io"
+	"log"
+	"net"
+	"reflect"
+	"sync"
+)
+
 const MagicNumber = 0x3bef5c
 
 type Option struct {
@@ -12,6 +23,15 @@ var DefaultOption = &Option{
 	CodecType:   codec.GobType,
 }
 
+/*
+报文将以这样的形式发送：
+| Option{MagicNumber: xxx, CodecType: xxx} | Header{ServiceMethod ...} | Body interface{} |
+| <------      固定 JSON 编码      ------>  | <-------   编码方式由 CodeType 决定   ------->|
+
+在一次连接中，Option 固定在报文的最开始，Header 和 Body 可以有多个，即报文可能是这样的。
+| Option | Header1 | Body1 | Header2 | Body2 | ...
+*/
+
 // Server represents an RPC Server.
 type Server struct{}
 
@@ -22,26 +42,6 @@ func NewServer() *Server {
 
 // DefaultServer is the default instance of *Server.
 var DefaultServer = NewServer()
-
-// Accept accepts connections on the listener and serves requests
-// for each incoming connection.
-func (server *Server) Accept(lis net.Listener) {
-	for {
-		conn, err := lis.Accept()
-		if err != nil {
-			log.Println("rpc server: accept error:", err)
-			return
-		}
-		go server.ServeConn(conn)
-	}
-}
-
-// Accept accepts connections on the listener and serves requests
-// for each incoming connection.
-func Accept(lis net.Listener) { DefaultServer.Accept(lis) }
-
-lis, _ := net.Listen("tcp", ":9999")
-geerpc.Accept(lis)
 
 // ServeConn runs the server on a single connection.
 // ServeConn blocks, serving the connection until the client hangs up.
@@ -136,5 +136,19 @@ func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.
 	server.sendResponse(cc, req.h, req.replyv.Interface(), sending)
 }
 
+// Accept accepts connections on the listener and serves requests
+// for each incoming connection.
+func (server *Server) Accept(lis net.Listener) {
+	for {
+		conn, err := lis.Accept()
+		if err != nil {
+			log.Println("rpc server: accept error:", err)
+			return
+		}
+		go server.ServeConn(conn)
+	}
+}
 
-
+// Accept accepts connections on the listener and serves requests
+// for each incoming connection.
+func Accept(lis net.Listener) { DefaultServer.Accept(lis) }

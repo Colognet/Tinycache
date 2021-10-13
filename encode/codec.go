@@ -1,13 +1,13 @@
-package encode
+package codec
 
 import "io"
 
-
-type Header struct{
-	serviceMethod string   //服务方法名
-	Seq uint64			  //请求的序号，用来区分不同的请求
-	error string		  //错误的信息
+type Header struct {
+	ServiceMethod string //服务方法名
+	Seq           uint64 //请求的序号，用来区分不同的请求
+	Error         string //错误的信息
 }
+
 //用来进行编解码
 type Codec interface {
 	io.Closer
@@ -31,7 +31,3 @@ func init() {
 	NewCodecFuncMap = make(map[Type]NewCodecFunc)
 	NewCodecFuncMap[GobType] = NewGobCodec
 }
-
-
-
-
