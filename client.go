@@ -131,6 +131,7 @@ func (client *Client) send(call *Call) {
 	}
 }
 
+//接收响应
 func (client *Client) receive() {
 	var err error
 	for err == nil {
@@ -227,7 +228,7 @@ func newClientCodec(cc codec.Codec, opt *Option) *Client {
 	go client.receive()
 	return client
 }
-
+//便于用户传入服务端地址
 // Dial connects to an RPC server at the specified network address
 func Dial(network, address string, opts ...*Option) (client *Client, err error) {
 	opt, err := parseOptions(opts...)
