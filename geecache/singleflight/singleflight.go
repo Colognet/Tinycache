@@ -11,8 +11,8 @@ type call struct {
 
 //管理不同 key 的请求
 type Group struct {
-	mu sync.Mutex       // protects m
-	m  map[string]*call // lazily initialized
+	mu sync.Mutex       
+	m  map[string]*call 
 }
 
 

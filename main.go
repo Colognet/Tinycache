@@ -14,6 +14,7 @@ import (
 	"log"
 	"net/http"
 )
+
 //使用 map 模拟了数据源 db
 var db = map[string]string{
 	"Tom":  "630",
@@ -41,11 +42,13 @@ func startCacheServer(addr string, addrs []string, gee *geecache.Group) {
 	log.Println("geecache is running at", addr)
 	log.Fatal(http.ListenAndServe(addr[7:], peers))
 }
+
 //startAPIServer() 用来启动一个 API 服务（端口 9999），与用户进行交互
 func startAPIServer(apiAddr string, gee *geecache.Group) {
 	http.Handle("/api", http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			key := r.URL.Query().Get("key")
+			fmt.Println(key)
 			view, err := gee.Get(key)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
