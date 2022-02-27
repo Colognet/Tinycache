@@ -1,8 +1,0 @@
-# geecache v0.0.0 => ./geecache
-geecache
-geecache/consistenthash
-geecache/geecachepb
-geecache/lru
-geecache/singleflight
-# github.com/golang/protobuf v1.3.3
-github.com/golang/protobuf/proto

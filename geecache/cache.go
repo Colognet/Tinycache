@@ -10,6 +10,7 @@ type cache struct {
 	lru        *lru.Cache
 	cacheBytes int64
 }
+
 //实例化lru，封装add方法
 func (c *cache) add(key string, value ByteView) {
 	c.mu.Lock()
@@ -20,6 +21,7 @@ func (c *cache) add(key string, value ByteView) {
 	}
 	c.lru.Add(key, value)
 }
+
 //封装lru，实例化get方法
 func (c *cache) get(key string) (value ByteView, ok bool) {
 	c.mu.Lock()

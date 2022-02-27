@@ -35,7 +35,6 @@ var (
 	groups = make(map[string]*Group)
 )
 
-
 func NewGroup(name string, cacheBytes int64, getter Getter) *Group {
 	if getter == nil {
 		panic("nil Getter")
@@ -51,7 +50,6 @@ func NewGroup(name string, cacheBytes int64, getter Getter) *Group {
 	groups[name] = g
 	return g
 }
-
 
 //从groups里面找group
 func GetGroup(name string) *Group {
@@ -75,7 +73,6 @@ func (g *Group) Get(key string) (ByteView, error) {
 	}
 	return g.load(key)
 }
-
 
 func (g *Group) RegisterPeers(peers PeerPicker) {
 	if g.peers != nil {
