@@ -2,7 +2,6 @@ package lru
 
 import "container/list"
 
-// Cache is a LRU cache. It is not safe for concurrent access.
 //数据结构：字典+双向链表
 //字典用来查找key对应的val（o1），双向链表用来维护访问的先后关系
 type Cache struct {
@@ -21,13 +20,11 @@ type entry struct {
 	value Value
 }
 
-// Value use Len to count how many bytes it takes
 //返回值占用内存的大小
 type Value interface {
 	Len() int
 }
 
-// New is the Constructor of Cache
 //实例化Cache
 func New(maxBytes int64, onEvicted func(string, Value)) *Cache {
 	return &Cache{
@@ -38,7 +35,6 @@ func New(maxBytes int64, onEvicted func(string, Value)) *Cache {
 	}
 }
 
-// Add adds a value to the cache.
 //向Cache中增加值
 func (c *Cache) Add(key string, value Value) {
 	if ele, ok := c.cache[key]; ok {
@@ -59,7 +55,6 @@ func (c *Cache) Add(key string, value Value) {
 	}
 }
 
-// Get look ups a key's value
 //查找功能
 func (c *Cache) Get(key string) (value Value, ok bool) {
 	if ele, ok := c.cache[key]; ok {
@@ -70,7 +65,6 @@ func (c *Cache) Get(key string) (value Value, ok bool) {
 	return
 }
 
-// RemoveOldest removes the oldest item
 //缓存淘汰
 func (c *Cache) RemoveOldest() {
 	ele := c.ll.Back()

@@ -19,17 +19,15 @@ const (
 	defaultReplicas = 50
 )
 
-// HTTPPool implements PeerPicker for a pool of HTTP peers.
 type HTTPPool struct {
 	// this peer's base URL, e.g. "https://example.net:8000"
-	self        string            //记录自己的地址
-	basePath    string            //节点间通信地址的默认前缀
-	mu          sync.Mutex // guards peers and httpGetters
-	peers       *consistenthash.Map                      //根据具体的key选择节点
+	self        string                 //记录自己的地址
+	basePath    string                 //节点间通信地址的默认前缀
+	mu          sync.Mutex             // guards peers and httpGetters
+	peers       *consistenthash.Map    //根据具体的key选择节点
 	httpGetters map[string]*httpGetter // keyed by e.g. "http://10.0.0.2:8008"   映射远程节点与对应的 httpGetter。
 }
 
-// NewHTTPPool initializes an HTTP pool of peers.
 func NewHTTPPool(self string) *HTTPPool {
 	return &HTTPPool{
 		self:     self,
@@ -37,13 +35,10 @@ func NewHTTPPool(self string) *HTTPPool {
 	}
 }
 
-
-// Log info with server name
 func (p *HTTPPool) Log(format string, v ...interface{}) {
 	log.Printf("[Server %s] %s", p.self, fmt.Sprintf(format, v...))
 }
 
-// ServeHTTP handle all http requests
 func (p *HTTPPool) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//判断前缀是不是basePath,否则返回错误
 	if !strings.HasPrefix(r.URL.Path, p.basePath) {
@@ -72,7 +67,6 @@ func (p *HTTPPool) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Write the value to the response body as a proto message.
 	//proto.Marshal:编码http响应
 	body, err := proto.Marshal(&pb.Response{Value: view.ByteSlice()})
 	if err != nil {
@@ -84,7 +78,6 @@ func (p *HTTPPool) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-// Set updates the pool's list of peers.
 //Set() 方法实例化了一致性哈希算法，并且添加了传入的节点。
 //为每一个节点创建了一个 HTTP 客户端 httpGetter。
 func (p *HTTPPool) Set(peers ...string) {
@@ -98,7 +91,6 @@ func (p *HTTPPool) Set(peers ...string) {
 	}
 }
 
-// PickPeer picks a peer according to key
 //PickerPeer() 包装了一致性哈希算法的 Get() 方法，根据具体的 key，选择节点，返回节点对应的 HTTP 客户端。
 func (p *HTTPPool) PickPeer(key string) (PeerGetter, bool) {
 	p.mu.Lock()
@@ -109,7 +101,6 @@ func (p *HTTPPool) PickPeer(key string) (PeerGetter, bool) {
 	}
 	return nil, false
 }
-
 
 var _ PeerPicker = (*HTTPPool)(nil)
 
